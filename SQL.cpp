@@ -5,6 +5,9 @@
 #pragma package(smart_init)
 cSQL::cSQL(TADOConnection * Connection):url(Connection),ReconnectCount(5),cmd(0)
 {
+#ifdef NODB
+return;
+#endif
 //if (cmd) {delete cmd; cmd=0;}
 cmd=new TADOCommand(url->Owner);
 cmd->Connection=url;
@@ -14,6 +17,9 @@ tables.clear();
 }
 cSQL::cSQL(cSQL * r):url(r->GetConnect()),ReconnectCount(r->GetReconnectCount())
 {
+#ifdef NODB
+return;
+#endif
 if (cmd) {delete cmd; cmd=0;}
 cmd=new TADOCommand(url->Owner);
 cmd->Connection=url;
@@ -26,10 +32,16 @@ delete cmd;
 }
 void cSQL::AddTable(TADOTable *table)
 {
+#ifdef NODB
+return;
+#endif
 tables.push_back(table);     
 }
 void cSQL::DelTable(TADOTable *table)
 {
+#ifdef NODB
+return;
+#endif
 for (int i = 0; i <tables.size(); i++) 
 	{
 	if (tables[i]==table) 
@@ -40,6 +52,9 @@ for (int i = 0; i <tables.size(); i++)
 }
 bool cSQL::Connect()
 {
+#ifdef NODB
+return true;
+#endif
 if (cmd) {delete cmd; cmd=0;}
 if (!url->Connected)
 	{
@@ -66,6 +81,9 @@ return TestConnectoin();
 }
 bool cSQL::TestConnectoin() const
 {
+#ifdef NODB
+return true;
+#endif
 TADOQuery *test;
 test= new TADOQuery(url->Owner);
 test->Connection=url;
@@ -82,6 +100,9 @@ catch (...) {delete test;url->Connected=false;return false;}
 }
 bool cSQL::CheckConnection()
 {
+#ifdef NODB
+return true;
+#endif
 if(!TestConnectoin())
 	{
 	for (int i=0; i<=ReconnectCount; i++)
@@ -95,9 +116,12 @@ return true;
 TADOQuery * cSQL::SendSQL(const String &request)
 {
 TADOQuery *query=0;
+#ifdef NODB
+return 0;
+#endif
 //if (!CheckConnection()) {delete query;return 0;}   //fox pro не дружит с select 1
-/*try
-	{  */
+try
+	{
 	log.push_back(Time().TimeString()+"---"+request);
 	query=new TADOQuery(url->Owner);
 	query->ParamCheck=false;
@@ -107,20 +131,31 @@ TADOQuery *query=0;
 	query->SQL->Add(request);
 	query->Active=true;
 	return query;
-  /*	}
-catch (...){delete query;return 0;}     */
+	}
+catch (Exception &exception)
+{
+	log.push_back("ERROR:"+Time().TimeString()+"---"+exception.ToString() );
+	delete query;return 0;
+}
 }
 bool cSQL::SendCommand(const String &request)
 {
-/*if (!CheckConnection())
+#ifdef NODB
+return true;
+#endif
+if (!CheckConnection())
 {return false;}
 try
-   {     */
+   {
 	log.push_back(Time().TimeString()+"---"+request);
 	cmd->CommandText=request;
 	cmd->Execute();
 	return true;
-   /*}
-catch (...){return false;}*/
+   }
+catch (Exception &exception)
+{
+	log.push_back("ERROR:"+Time().TimeString()+"---"+exception.ToString() );
+	return false;
+}
 }
 /*дописать куски для работы с таблицами*/

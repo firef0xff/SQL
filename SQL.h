@@ -2,7 +2,7 @@
 #define SQLH
 #include <ADODB.hpp>
 #include <vector.h>
-
+//#define NODB;
 class cSQL
 	{
 	public:
