@@ -43,12 +43,12 @@ void cSQL::DelTable(TADOTable *table)
 return;
 #endif
 for (int i = 0; i <tables.size(); i++) 
-	{
-	if (tables[i]==table) 
-		{
-		tables.erase(tables.begin()+i);
-		}
-	}
+    {
+    if (tables[i]==table) 
+        {
+        tables.erase(tables.begin()+i);
+        }
+    }
 }
 bool cSQL::Connect()
 {
@@ -57,12 +57,12 @@ return true;
 #endif
 if (cmd) {delete cmd; cmd=0;}
 if (!url->Connected)
-	{
-	TComponent *tmp=url->Owner;
-	delete url;
-	url=new TADOConnection(tmp);
+    {
+    TComponent *tmp=url->Owner;
+    delete url;
+    url=new TADOConnection(tmp);
 	url->LoginPrompt=false;
-	}
+    }
 cmd=new TADOCommand(url->Owner);
 cmd->Connection=url;
 cmd->ParamCheck=false;
@@ -70,11 +70,11 @@ try{url->Connected=true;} catch (...){}
 try
 {
 for (int i = 0; i <tables.size(); i++) 
-	{
-	tables[i]->Active=false;
-	tables[i]->Connection=url;
-	tables[i]->Active=true;
-	}
+    {
+    tables[i]->Active=false;
+    tables[i]->Connection=url;
+    tables[i]->Active=true;
+    }
 }
 catch(...){}
 return TestConnectoin();
@@ -88,14 +88,14 @@ TADOQuery *test;
 test= new TADOQuery(url->Owner);
 test->Connection=url;
 try
-	{
-	test->Active=false;
-	test->SQL->Clear();
-	test->SQL->Add("select 1");
-	test->Active=true;
-	delete test;
-	return true;
-	}
+    {
+    test->Active=false;
+    test->SQL->Clear();
+    test->SQL->Add("select 1");
+    test->Active=true;
+    delete test;
+    return true;
+    }
 catch (...) {delete test;url->Connected=false;return false;}
 }
 bool cSQL::CheckConnection()
@@ -104,13 +104,13 @@ bool cSQL::CheckConnection()
 return true;
 #endif
 if(!TestConnectoin())
-	{
-	for (int i=0; i<=ReconnectCount; i++)
-		{
-		if (Connect()){return true;}
-		}
-	return false;
-	}
+    {
+    for (int i=0; i<=ReconnectCount; i++)
+        {
+        if (Connect()){return true;}
+        }
+    return false;
+    }
 return true;
 }
 TADOQuery * cSQL::SendSQL(const String &request)
@@ -121,21 +121,21 @@ return 0;
 #endif
 //if (!CheckConnection()) {delete query;return 0;}   //fox pro не дружит с select 1
 try
-	{
-	log.push_back(Time().TimeString()+"---"+request);
-	query=new TADOQuery(url->Owner);
-	query->ParamCheck=false;
-	query->Connection=url;
-	query->Active=false;
-	query->SQL->Clear();
-	query->SQL->Add(request);
-	query->Active=true;
-	return query;
-	}
+    {
+    log.push_back(Time().TimeString()+"---"+request);
+    query=new TADOQuery(url->Owner);
+    query->ParamCheck=false;
+    query->Connection=url;
+    query->Active=false;
+    query->SQL->Clear();
+    query->SQL->Add(request);
+    query->Active=true;
+    return query;
+    }
 catch (Exception &exception)
 {
 	log.push_back("ERROR:"+Time().TimeString()+"---"+exception.ToString() );
-	delete query;return 0;
+    delete query;return 0;
 }
 }
 bool cSQL::SendCommand(const String &request)
@@ -147,15 +147,20 @@ if (!CheckConnection())
 {return false;}
 try
    {
-	log.push_back(Time().TimeString()+"---"+request);
-	cmd->CommandText=request;
-	cmd->Execute();
-	return true;
+    log.push_back(Time().TimeString()+"---"+request);
+    cmd->CommandText=request;
+    cmd->Execute();
+    return true;
    }
 catch (Exception &exception)
 {
 	log.push_back("ERROR:"+Time().TimeString()+"---"+exception.ToString() );
-	return false;
+    return false;
 }
 }
 /*дописать куски для работы с таблицами*/
+
+
+boolean cSQL::clearLog(void) {
+    log.clear();
+}
