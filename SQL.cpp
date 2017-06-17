@@ -94,4 +94,4 @@ bool cSQL::SendCommand(const String &request)
 	{
 		return false;
 	}
-}
+}
