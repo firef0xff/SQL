@@ -3,19 +3,24 @@
 #include "SQL.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
-cSQL::cSQL(TADOConnection * Connection):url(Connection),ReconnectCount(5),cmd(0)
+
+std::vector <String> cSQL::log;
+cSQL::cSQL(TADOConnection * Connection, bool enable_log):
+   url(Connection),
+   mEnableLog(enable_log),
+   cmd(0)
 {
-	#ifdef NODB
-	return;
-	#endif
-	cmd.reset( new TADOCommand(url->Owner) );
-	cmd->Connection=url;
-	cmd->ParamCheck=false;
-	try
-	{
-		url->Connected=true;
-	} catch (...)
-	{}
+   #ifdef NODB
+   return;
+   #endif
+   cmd.reset( new TADOCommand(url->Owner) );
+   cmd->Connection=url;
+   cmd->ParamCheck=false;
+   try
+   {
+      url->Connected=true;
+   } catch (...)
+   {}
 }
 cSQL::~cSQL()
 {
@@ -53,12 +58,13 @@ bool cSQL::CheckConnection()
 }
 std::unique_ptr<TADOQuery> cSQL::SendSQL(const String &request)
 {
-	std::unique_ptr<TADOQuery> query;
+        std::unique_ptr<TADOQuery> query;
 	#ifdef NODB
 	return query;
 	#endif
 	try
 	{
+                log.push_back(Time().TimeString()+"---"+request);
 		query.reset( new TADOQuery(url->Owner) );
 		query->ParamCheck=false;
 		query->Connection=url;
@@ -77,21 +83,33 @@ std::unique_ptr<TADOQuery> cSQL::SendSQL(const String &request)
 
 bool cSQL::SendCommand(const String &request)
 {
-	#ifdef NODB
-	return true;
-	#endif
-	if (!CheckConnection())
-	{
-		return false;
-	}
-	try
-	{
-		cmd->CommandText=request;
-		cmd->Execute();
-		return true;
-   	}
-	catch (Exception &exception)
-	{
-		return false;
-	}
-}
+   #ifdef NODB
+   return true;
+   #endif
+   if (!CheckConnection())
+   {
+      return false;
+   }
+   try
+   {
+      if ( mEnableLog )
+         log.push_back(Time().TimeString()+"---"+request);
+      cmd->CommandText=request;
+      cmd->Execute();
+      return true;
+   }
+   catch (Exception &exception)
+   {
+      return false;
+   }
+}
+
+
+std::vector <String>& cSQL::Get_log(void)
+{
+   return log;
+}
+bool cSQL::clearLog(void)
+{
+   log.clear();
+}
