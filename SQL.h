@@ -1,4 +1,4 @@
-#ifndef SQLH
+﻿#ifndef SQLH
 #define SQLH
 #include <ADODB.hpp>
 #include <memory>
@@ -13,7 +13,7 @@ public:
    std::unique_ptr<TADOQuery> SendSQL(const String &request);
    bool SendCommand(const String &request);
    std::vector <String>& Get_log(void);
-   bool clearLog(void);
+   void clearLog(void);
 private:
    bool CheckConnection();
    bool TestConnectoin() const;
